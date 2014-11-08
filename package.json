@@ -1,0 +1,38 @@
+{
+	"name": "catberry-debugger",
+	"version": "0.0.1",
+	"author": {
+		"name": "Julia Rechkunova",
+		"email": "julia.rechkunova@gmail.com"
+	},
+	"description": "Catberry Debugger extends Chrome Developer Tools, adding a sidebar that displays Catberry data context associated with the selected DOM element",
+	"homepage": "https://github.com/catberry/catberry-debugger",
+	"keywords": [
+		"stream", "web", "isomorphic", "framework", "middleware", "connect",
+		"dust", "module", "express", "chrome", "extension", "catberry"
+	],
+	"bugs": {
+		"url": "https://github.com/catberry/catberry-debugger/issues",
+		"email": "julia.rechkunova@gmail.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/catberry/catberry-debugger.git"
+	},
+	"devDependencies": {
+		"jscs": "~1.6.0",
+		"jshint": "^2.5.0"
+	},
+	"engines": {
+		"node": "~0.10.26"
+	},
+	"scripts": {
+		"test": "make"
+	},
+	"licenses": [
+		{
+			"type": "MIT",
+			"url": "https://github.com/catberry/catberry-debugger/blob/master/LICENSE"
+		}
+	]
+}

@@ -1,0 +1,14 @@
+{
+	"extName": {
+		"message": "Catberry Debugger",
+		"description": "Extension name"
+	},
+	"extDescription": {
+		"message": "Extends Chrome Developer Tools, adding a sidebar that displays Catberry data context associated with the selected DOM element",
+		"description": "Extension description"
+	},
+	"sidebarTitle": {
+		"message": "Catberry",
+		"description": "Sidebar title"
+	}
+}

@@ -11,3 +11,5 @@ Packaged version `./bin/catberry-debugger.crx`
 
 ##Example
 ![Catberry Debugger Sidebar](https://raw.githubusercontent.com/catberry/catberry-debugger/master/example/screenshots/sidebar-pane.png)
+
+![Catberry Debugger Panel](https://raw.githubusercontent.com/catberry/catberry-debugger/master/example/screenshots/panel.png)

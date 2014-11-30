@@ -1,0 +1,22 @@
+body {
+	min-width: 800px;
+}
+
+.placeholders {
+	width: 50%;
+	margin: 1rem auto;
+}
+
+.logo {
+	position: fixed;
+	top: 1rem;
+	left: 1rem;
+
+	width: 76px;
+	height: 60px;
+
+	background: url(catberry.svg);
+	background-size: auto 100%;
+
+	cursor: pointer;
+}

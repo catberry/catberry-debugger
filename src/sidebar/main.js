@@ -1,6 +1,6 @@
 'use strict';
 
-function getDebuggerInstance (selectedDomElement) {
+function getDebuggerInstance (selectedDomElement, domDocument) {
 
 	/**
 	 * Catberry debugger
@@ -79,8 +79,13 @@ function getDebuggerInstance (selectedDomElement) {
 			return null;
 		}
 
+		if (!(this._moduleName in this._loader.lastRenderedData)) {
+			return null;
+		}
+
 		var dc = JSON.parse(JSON.stringify(this._loader
 			.lastRenderedData[this._moduleName][this._placeholderName]));
+
 		return this._clearProto(dc);
 	};
 
@@ -101,7 +106,7 @@ function getDebuggerInstance (selectedDomElement) {
 
 		return this._clearProto({
 			name: this._moduleName,
-			implementation: this._clearProto(module.implementation),
+			implementation: module.implementation,
 			placeholders: this._clearProto(Object.keys(module.placeholders))
 		});
 	};
@@ -132,6 +137,18 @@ function getDebuggerInstance (selectedDomElement) {
 		return result;
 	};
 
+	CatberryDebugger.prototype.getActivePlaceholders = function () {
+		if (!this._loader) {
+			return [];
+		}
+
+		var allPlaceholders = Object.keys(this._loader.getPlaceholdersByIds());
+
+		return allPlaceholders.filter(function (placeholder) {
+			return (domDocument.getElementById(placeholder) !== null);
+		});
+	};
+
 	var catberryDebugger = new CatberryDebugger();
 	catberryDebugger.init(selectedDomElement);
 
@@ -142,7 +159,7 @@ chrome.devtools.panels.elements.createSidebarPane(
 	chrome.i18n.getMessage('sidebarTitle'),
 	function (sidebar) {
 		function updateElementProperties() {
-			sidebar.setExpression('(' + getDebuggerInstance.toString() + ')($0)' +
+			sidebar.setExpression('(' + getDebuggerInstance.toString() + ')($0, document)' +
 				'.getCollectedData()',
 				chrome.i18n.getMessage('sidebarTitle'));
 		}

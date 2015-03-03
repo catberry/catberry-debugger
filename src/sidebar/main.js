@@ -12,25 +12,18 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 	}
 
 	/**
-	 * Id of selected DOM element
-	 * @type {string|null}
+	 * Selected DOM element
+	 * @type {Element}
 	 * @private
 	 */
-	CatberryDebugger.prototype._elementId = null;
+	CatberryDebugger.prototype._element = null;
 
 	/**
-	 * Catberry's module name
-	 * @type {string|null}
+	 * Collected store data
+	 * @type {Object|null}
 	 * @private
 	 */
-	CatberryDebugger.prototype._moduleName = null;
-
-	/**
-	 * Placeholder's name
-	 * @type {string|null}
-	 * @private
-	 */
-	CatberryDebugger.prototype._placeholderName = null;
+	CatberryDebugger.prototype._collectedStoreData = null;
 
 	/**
 	 * Locator in Catberry
@@ -48,67 +41,39 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 			return;
 		}
 
-		/*this._elementId = null;
-		this._moduleName = null;
-		this._placeholderName = null;
+		this._element = null;
 
 		if (!domElement) {
 			return;
 		}
-		var id = domElement.getAttribute('id');
 
-		if (!id || !(id in this._locator.getPlaceholdersByIds())) {
+		var id = domElement.getAttribute('id'),
+			tagName = domElement.tagName.toLowerCase();
+
+		if (!/^cat-.+/.test(tagName) || !id) {
 			return;
 		}
 
-		this._elementId = id;
-
-		var	reg = /^([\w\d-]+)_([\w\d-]+)$/,
-			matches = (typeof id === 'string')? id.match(reg) : null;
-
-		this._moduleName = matches ? matches[1] : null;
-		this._placeholderName = matches ? matches[2] : null;*/
+		this._element = domElement;
 	};
 
 	/**
-	 * Gets data context by placeholder id
+	 * Gets store data
 	 * @returns {Object|null}
 	 */
-	CatberryDebugger.prototype.getDataContext = function () {
-		if (!this._locator|| !this._moduleName || !this._placeholderName) {
+	CatberryDebugger.prototype.getStoreData = function () {
+		if (!this._locator || !this._element) {
 			return null;
 		}
 
-		if (!(this._moduleName in this._locator.lastRenderedData)) {
-			return null;
-		}
+		var storeName = this._element.getAttribute('cat-store'),
+			self = this;
 
-		var dc = JSON.parse(JSON.stringify(this._locator
-			.lastRenderedData[this._moduleName][this._placeholderName]));
-
-		return this._clearProto(dc);
-	};
-
-	/**
-	 * Gets module data by moduleName
-	 * @returns {Object|null}
-	 */
-	CatberryDebugger.prototype.getModule = function () {
-		if (!this._locator|| !this._moduleName || !this._placeholderName) {
-			return null;
-		}
-
-		var module = this._locator.getModulesByNames()[this._moduleName];
-
-		if (!module) {
-			return null;
-		}
-
-		return this._clearProto({
-			name: this._moduleName,
-			implementation: module.implementation,
-			placeholders: this._clearProto(Object.keys(module.placeholders))
-		});
+		return this._locator.resolve('documentRenderer')._storeDispatcher
+			.getStoreData(storeName)
+			.then(function (data) {
+				self._collectedStoreData = JSON.parse(JSON.stringify(data));
+			});
 	};
 
 	/**
@@ -116,11 +81,22 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 	 * @returns {Object}
 	 */
 	CatberryDebugger.prototype.getCollectedData = function () {
-		return this._clearProto({
-			Placeholder: this._elementId,
-			DataContext: this.getDataContext(),
-			Module: this.getModule()
-		});
+		var data = {
+			id: this._element.getAttribute('id'),
+			component: this._element.tagName.toLowerCase().substring(4),
+			store: this._element.getAttribute('cat-store') ?
+				this._clearProto({
+					name: this._element.getAttribute('cat-store'),
+					data: null
+				}) :
+				null
+		};
+
+		if (data.store) {
+			data.store.data = this._clearProto(this._collectedStoreData) || null;
+		}
+
+		return this._clearProto(data);
 	};
 
 	/**
@@ -179,9 +155,16 @@ chrome.devtools.panels.elements.createSidebarPane(
 	chrome.i18n.getMessage('sidebarTitle'),
 	function (sidebar) {
 		function updateElementProperties() {
-			sidebar.setExpression('(' + getDebuggerInstance.toString() + ')($0, document)' +
-				'.getCollectedData()',
-				chrome.i18n.getMessage('sidebarTitle'));
+			chrome.devtools.inspectedWindow.eval(
+				'window.catberryDevToolsSidebar=(' + getDebuggerInstance.toString() +
+				')($0, document);window.catberryDevToolsSidebar.getStoreData()',
+				function (data, error) {
+					sidebar.setExpression(
+						'window.catberryDevToolsSidebar.getCollectedData()',
+						chrome.i18n.getMessage('sidebarTitle')
+					);
+				}
+			);
 		}
 
 		updateElementProperties();

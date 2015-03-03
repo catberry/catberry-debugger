@@ -32,7 +32,6 @@ function renderComponents (panelWindow) {
 	chrome.devtools.inspectedWindow.eval(
 		'(' + getDebuggerInstance.toString() + ')(null, document).getActiveComponents()',
 		function (components, error) {
-			alert(JSON.stringify(error));
 			var $table = panelWindow.document.getElementById('js-catberry-components'),
 				content = '';
 

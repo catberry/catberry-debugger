@@ -10,7 +10,7 @@ function inspectInElementsPanel (placeholder) {
 	inspect($element);
 }
 
-function inspectPlaceholder (event) {
+function inspectComponent (event) {
 	if(event.target && event.target.nodeName === "BUTTON") {
 		chrome.devtools.inspectedWindow.eval(
 			'(' + inspectInElementsPanel.toString() + ')("' + event.target.getAttribute('data-id') + '")'
@@ -19,30 +19,34 @@ function inspectPlaceholder (event) {
 }
 
 function addListeners (panelWindow) {
-	var $table = panelWindow.document.getElementById('js-catberry-placeholders');
-	$table.addEventListener('click', inspectPlaceholder);
+	var $table = panelWindow.document.getElementById('js-catberry-components');
+	$table.addEventListener('click', inspectComponent);
 
 	var $logo = panelWindow.document.getElementById('js-catberry-logo');
 	$logo.addEventListener('click', function () {
-		renderPlaceholders(panelWindow);
+		renderComponents(panelWindow);
 	});
 }
 
-function renderPlaceholders (panelWindow) {
+function renderComponents (panelWindow) {
 	chrome.devtools.inspectedWindow.eval(
-		'(' + getDebuggerInstance.toString() + ')(null, document).getActivePlaceholders()',
-		function (placeholders, error) {
-			var $table = panelWindow.document.getElementById('js-catberry-placeholders'),
+		'(' + getDebuggerInstance.toString() + ')(null, document).getActiveComponents()',
+		function (components, error) {
+			alert(JSON.stringify(error));
+			var $table = panelWindow.document.getElementById('js-catberry-components'),
 				content = '';
 
-			placeholders.sort();
+			components.sort(function (first, second) {
+				return (first.name > second.name) ? 1 : -1;
+			});
 
-			placeholders.forEach(function (placeholder) {
+			components.forEach(function (component) {
 				content += '<li class="item">';
 				content += '<button class="right floated compact ui mini orange button" ' +
-					'data-id="' + placeholder + '">Inspect</button>';
+					'data-id="' + component.id + '">Inspect</button>';
 				content += '<div class="content">' +
-						'<div class="header">' + placeholder + '</div>' +
+						'<div class="header">' + component.name + '</div>' +
+						'#' + component.id + (component.store ? ' ' + component.store : '') +
 					'</div>';
 				content += '</li>';
 			});
@@ -59,6 +63,6 @@ chrome.devtools.panels.create(
 	function (panel) {
 		panel.onShown.addListener(function(panelWindow) {
 			addListeners(panelWindow);
-			renderPlaceholders(panelWindow);
+			renderComponents(panelWindow);
 		});
 	});

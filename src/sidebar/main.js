@@ -7,8 +7,8 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 	 * @constructor
 	 */
 	function CatberryDebugger () {
-		this._loader = ('catberry' in window)?
-			window.catberry.locator.resolve('moduleLoader') : null;
+		this._locator= ('catberry' in window)?
+			window.catberry.locator : null;
 	}
 
 	/**
@@ -33,22 +33,22 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 	CatberryDebugger.prototype._placeholderName = null;
 
 	/**
-	 * Module loader in Catberry
+	 * Locator in Catberry
 	 * @type {Object|null}
 	 * @private
 	 */
-	CatberryDebugger.prototype._loader = null;
+	CatberryDebugger.prototype._locator= null;
 
 	/**
 	 * Inits data
 	 * @param {HTMLElement} domElement
 	 */
 	CatberryDebugger.prototype.init = function (domElement) {
-		if (!this._loader) {
+		if (!this._locator) {
 			return;
 		}
 
-		this._elementId = null;
+		/*this._elementId = null;
 		this._moduleName = null;
 		this._placeholderName = null;
 
@@ -57,7 +57,7 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 		}
 		var id = domElement.getAttribute('id');
 
-		if (!id || !(id in this._loader.getPlaceholdersByIds())) {
+		if (!id || !(id in this._locator.getPlaceholdersByIds())) {
 			return;
 		}
 
@@ -67,7 +67,7 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 			matches = (typeof id === 'string')? id.match(reg) : null;
 
 		this._moduleName = matches ? matches[1] : null;
-		this._placeholderName = matches ? matches[2] : null;
+		this._placeholderName = matches ? matches[2] : null;*/
 	};
 
 	/**
@@ -75,15 +75,15 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 	 * @returns {Object|null}
 	 */
 	CatberryDebugger.prototype.getDataContext = function () {
-		if (!this._loader || !this._moduleName || !this._placeholderName) {
+		if (!this._locator|| !this._moduleName || !this._placeholderName) {
 			return null;
 		}
 
-		if (!(this._moduleName in this._loader.lastRenderedData)) {
+		if (!(this._moduleName in this._locator.lastRenderedData)) {
 			return null;
 		}
 
-		var dc = JSON.parse(JSON.stringify(this._loader
+		var dc = JSON.parse(JSON.stringify(this._locator
 			.lastRenderedData[this._moduleName][this._placeholderName]));
 
 		return this._clearProto(dc);
@@ -94,11 +94,11 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 	 * @returns {Object|null}
 	 */
 	CatberryDebugger.prototype.getModule = function () {
-		if (!this._loader || !this._moduleName || !this._placeholderName) {
+		if (!this._locator|| !this._moduleName || !this._placeholderName) {
 			return null;
 		}
 
-		var module = this._loader.getModulesByNames()[this._moduleName];
+		var module = this._locator.getModulesByNames()[this._moduleName];
 
 		if (!module) {
 			return null;
@@ -137,16 +137,36 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 		return result;
 	};
 
-	CatberryDebugger.prototype.getActivePlaceholders = function () {
-		if (!this._loader) {
+	/**
+	 * Gets active components
+	 * @returns {Array}
+	 */
+	CatberryDebugger.prototype.getActiveComponents = function () {
+		if (!this._locator) {
 			return [];
 		}
 
-		var allPlaceholders = Object.keys(this._loader.getPlaceholdersByIds());
+		var allComponents = this._locator.resolveAll('component')
+			.map(function (component) {
+				return 'cat-' + component.name;
+			});
 
-		return allPlaceholders.filter(function (placeholder) {
-			return (domDocument.getElementById(placeholder) !== null);
+		var activeComponents = [];
+
+		allComponents.forEach(function (component) {
+			var elements = domDocument.getElementsByTagName(component),
+				components = [];
+			for (var i = 0; i < elements.length; i++) {
+				components.push({
+					id: elements[i].id,
+					store: elements[i].getAttribute('cat-store'),
+					name: component
+				});
+			}
+			activeComponents = activeComponents.concat(components);
 		});
+
+		return activeComponents;
 	};
 
 	var catberryDebugger = new CatberryDebugger();

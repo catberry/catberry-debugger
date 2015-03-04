@@ -159,10 +159,12 @@ chrome.devtools.panels.elements.createSidebarPane(
 				'window.catberryDevToolsSidebar=(' + getDebuggerInstance.toString() +
 				')($0, document);window.catberryDevToolsSidebar.getStoreData()',
 				function (data, error) {
-					sidebar.setExpression(
-						'window.catberryDevToolsSidebar.getCollectedData()',
-						chrome.i18n.getMessage('sidebarTitle')
-					);
+					setTimeout(function () {
+						sidebar.setExpression(
+							'window.catberryDevToolsSidebar.getCollectedData()',
+							chrome.i18n.getMessage('sidebarTitle')
+						);
+					}, 500);
 				}
 			);
 		}

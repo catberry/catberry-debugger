@@ -1,21 +1,102 @@
 <html>
 <head>
-	<link href="./lib/semantic-ui/components/segment.min.css" rel="stylesheet">
-	<link href="./lib/semantic-ui/components/header.min.css" rel="stylesheet">
-	<link href="./lib/semantic-ui/components/list.min.css" rel="stylesheet">
-	<link href="./lib/semantic-ui/components/button.min.css" rel="stylesheet">
-	<link href="./lib/semantic-ui/components/icon.min.css" rel="stylesheet">
+	<link href="./lib/fontawesome/css/font-awesome.min.css" rel="stylesheet">
 	<link href="styles.css" rel="stylesheet">
 </head>
-<body>
-	<section class="logo" id="js-catberry-logo" title="Refresh Catberry.js Debugger"></section>
-	<section class="placeholders">
-		<h4 class="ui orange header">Active components</h4>
-		<div class="ui segment">
-			<ul class="ui ordered divided list" id="js-catberry-components">
-
-			</ul>
+<body class="document">
+	<header class="header">
+		<div class="header__item">
+			<a class="logo" href="https://www.npmjs.com/package/catberry" title="Catberry" target="_blank"></a>
 		</div>
+		<div class="header__item">
+			<a class="header__link" href="https://github.com/catberry/catberry/" target="_blank">Catberry</a>
+		</div>
+		<div class="header__item">
+			<a class="header__link" href="https://github.com/catberry/catberry/blob/master/docs/index.md" target="_blank">Docs</a>
+		</div>
+	</header>
+	<nav class="navigation">
+		<div class="navigation__item">
+			<a class="logo" href="https://www.npmjs.com/package/catberry" title="Catberry" target="_blank"></a>
+		</div>
+		<a class="navigation__item is-active" href="#" id="js-show-components">
+			<i class="fa fa-cubes icon"></i>
+			<div>Components</div>
+			<div id="js-component-count">0</div>
+		</a>
+		<a class="navigation__item" href="#" id="js-show-stores">
+			<i class="fa fa-server icon"></i>
+			<div>Stores</div>
+			<div id="js-stores-count">0</div>
+		</a>
+		<a class="navigation__item" href="#" id="js-refresh">
+			<i class="fa fa-refresh icon"></i>
+			<div>Refresh data</div>
+		</a>
+	</nav>
+	<section class="content">
+		<section class="components">
+			<table>
+				<thead>
+					<tr>
+						<th>Component</th>
+						<th>Used store</th>
+						<th>Id</th>
+						<th>Action</th>
+					</tr>
+				</thead>
+				<tbody id="js-catberry-components">
+					<tr>
+						<td>Name</td>
+						<td>Store</td>
+						<td>Id</td>
+						<td><button>Inspect</button></td>
+					</tr>
+					<tr>
+						<td>Name</td>
+						<td>Store</td>
+						<td>Id</td>
+						<td><button>Inspect</button></td>
+					</tr>
+					<tr>
+						<td>Name</td>
+						<td>Store</td>
+						<td>Id</td>
+						<td><button>Inspect</button></td>
+					</tr>
+					<tr>
+						<td>Name</td>
+						<td>Store</td>
+						<td>Id</td>
+						<td><button>Inspect</button></td>
+					</tr>
+					<tr>
+						<td>Name</td>
+						<td>Store</td>
+						<td>Id</td>
+						<td><button>Inspect</button></td>
+					</tr>
+					<tr>
+						<td>Name</td>
+						<td>Store</td>
+						<td>Id</td>
+						<td><button>Inspect</button></td>
+					</tr>
+					<tr>
+						<td>Name</td>
+						<td>Store</td>
+						<td>Id</td>
+						<td><button>Inspect</button></td>
+					</tr>
+					<tr>
+						<td>Name</td>
+						<td>Store</td>
+						<td>Id</td>
+						<td><button>Inspect</button></td>
+					</tr>
+				</tbody>
+			</table>
+		</section>
 	</section>
 </body>
 </html>

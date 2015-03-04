@@ -22,7 +22,7 @@ function addListeners (panelWindow) {
 	var $table = panelWindow.document.getElementById('js-catberry-components');
 	$table.addEventListener('click', inspectComponent);
 
-	var $logo = panelWindow.document.getElementById('js-catberry-logo');
+	var $logo = panelWindow.document.getElementById('js-refresh');
 	$logo.addEventListener('click', function () {
 		renderComponents(panelWindow);
 	});
@@ -33,6 +33,7 @@ function renderComponents (panelWindow) {
 		'(' + getDebuggerInstance.toString() + ')(null, document).getActiveComponents()',
 		function (components, error) {
 			var $table = panelWindow.document.getElementById('js-catberry-components'),
+				$count = panelWindow.document.getElementById('js-component-count'),
 				content = '';
 
 			components.sort(function (first, second) {
@@ -40,17 +41,16 @@ function renderComponents (panelWindow) {
 			});
 
 			components.forEach(function (component) {
-				content += '<li class="item">';
-				content += '<button class="right floated compact ui mini orange button" ' +
-					'data-id="' + component.id + '">Inspect</button>';
-				content += '<div class="content">' +
-						'<div class="header">' + component.name + '</div>' +
-						'#' + component.id + (component.store ? ' ' + component.store : '') +
-					'</div>';
-				content += '</li>';
+				content += '<tr>';
+				content += '<td>' + component.name + '</td>';
+				content += '<td>' + (component.store ? component.store : '') + '</td>';
+				content += '<td>' + component.id + '</td>';
+				content += '<td>' + '<button data-id="' + component.id + '">Inspect</button></td>';
+				content += '</tr>';
 			});
 
 			$table.innerHTML = content;
+			$count.innerHTML = components.length;
 		}
 	);
 }

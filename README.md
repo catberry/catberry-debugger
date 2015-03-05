@@ -10,6 +10,11 @@ adding a sidebar that displays information about [Catberry](https://github.com/c
 Packaged version `./bin/catberry-debugger.crx`
 
 ##Example
+
+Sidebar pane:
+
 ![Catberry Debugger Sidebar](https://raw.githubusercontent.com/catberry/catberry-debugger/master/example/screenshots/sidebar-pane.png)
+
+Panel:
 
 ![Catberry Debugger Panel](https://raw.githubusercontent.com/catberry/catberry-debugger/master/example/screenshots/panel.png)

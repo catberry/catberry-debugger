@@ -1,13 +1,19 @@
 'use strict';
 
-function inspectInElementsPanel (placeholder) {
-	var $element = document.getElementById(placeholder);
-	if (!$element) {
+var SECTIONS = {
+		components: 'components',
+		stores: 'stores'
+	},
+	currentSection = SECTIONS.components;
+
+function inspectInElementsPanel (component) {
+	var element = document.getElementById(component);
+	if (!element) {
 		return;
 	}
 
-	$element.scrollIntoView();
-	inspect($element);
+	element.scrollIntoView();
+	inspect(element);
 }
 
 function inspectComponent (event) {
@@ -19,12 +25,24 @@ function inspectComponent (event) {
 }
 
 function addListeners (panelWindow) {
-	var $table = panelWindow.document.getElementById('js-catberry-components');
-	$table.addEventListener('click', inspectComponent);
+	var table = panelWindow.document.getElementById('js-table-components');
+	table.addEventListener('click', inspectComponent);
 
-	var $logo = panelWindow.document.getElementById('js-refresh');
-	$logo.addEventListener('click', function () {
-		renderComponents(panelWindow);
+	var refreshElement = panelWindow.document.getElementById('js-refresh');
+	refreshElement.addEventListener('click', function () {
+		render(panelWindow);
+	});
+
+	var navComponents = panelWindow.document.getElementById('js-nav-components');
+	navComponents.addEventListener('click', function () {
+		render(panelWindow);
+		changeSection(panelWindow, SECTIONS.components);
+	});
+
+	var navStores = panelWindow.document.getElementById('js-nav-stores');
+	navStores.addEventListener('click', function () {
+		render(panelWindow);
+		changeSection(panelWindow, SECTIONS.stores);
 	});
 }
 
@@ -32,13 +50,9 @@ function renderComponents (panelWindow) {
 	chrome.devtools.inspectedWindow.eval(
 		'(' + getDebuggerInstance.toString() + ')(null, document).getActiveComponents()',
 		function (components, error) {
-			var $table = panelWindow.document.getElementById('js-catberry-components'),
-				$count = panelWindow.document.getElementById('js-component-count'),
+			var table = panelWindow.document.getElementById('js-table-components'),
+				counter = panelWindow.document.getElementById('js-count-components'),
 				content = '';
-
-			components.sort(function (first, second) {
-				return (first.name > second.name) ? 1 : -1;
-			});
 
 			components.forEach(function (component) {
 				content += '<tr>';
@@ -49,10 +63,58 @@ function renderComponents (panelWindow) {
 				content += '</tr>';
 			});
 
-			$table.innerHTML = content;
-			$count.innerHTML = components.length;
+			table.innerHTML = content;
+			counter.innerHTML = components.length;
 		}
 	);
+}
+
+function renderStores (panelWindow) {
+	chrome.devtools.inspectedWindow.eval(
+		'(' + getDebuggerInstance.toString() + ')(null, document).getActiveStores()',
+		function (stores, error) {
+			var table = panelWindow.document.getElementById('js-table-stores'),
+				counter = panelWindow.document.getElementById('js-count-stores'),
+				content = '';
+
+			stores.forEach(function (component) {
+				content += '<tr>';
+				content += '<td>' + component.name + '</td>';
+				content += '<td>' + component.components.join(', ') + '</td>';
+				content += '</tr>';
+			});
+
+			table.innerHTML = content;
+			counter.innerHTML = stores.length;
+		}
+	);
+}
+
+function setNewActive (panelWindow, groupClass, activeId) {
+	var elements = panelWindow.document.getElementsByClassName(groupClass);
+	for (var i = 0; i < elements.length; i++) {
+		elements[i].classList.remove('is-active');
+
+		if (elements[i].id === activeId) {
+			elements[i].classList.add('is-active');
+		}
+	}
+}
+
+function changeSection (panelWindow, nextSection) {
+	if (!SECTIONS.hasOwnProperty(nextSection)) {
+		return;
+	}
+
+	setNewActive(panelWindow, 'js-tab', 'js-tab-' + nextSection);
+	setNewActive(panelWindow, 'js-nav', 'js-nav-' + nextSection);
+
+	currentSection = nextSection;
+}
+
+function render (panelWindow) {
+	renderComponents(panelWindow);
+	renderStores(panelWindow);
 }
 
 chrome.devtools.panels.create(
@@ -62,6 +124,7 @@ chrome.devtools.panels.create(
 	function (panel) {
 		panel.onShown.addListener(function(panelWindow) {
 			addListeners(panelWindow);
-			renderComponents(panelWindow);
+			render(panelWindow);
+			changeSection(panelWindow, SECTIONS.components);
 		});
 	});

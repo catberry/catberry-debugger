@@ -142,7 +142,51 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 			activeComponents = activeComponents.concat(components);
 		});
 
+		activeComponents = activeComponents.sort(function (first, second) {
+			return (first.name > second.name) ? 1 : -1;
+		});
+
 		return activeComponents;
+	};
+
+	/**
+	 * Gets active components
+	 * @returns {Array}
+	 */
+	CatberryDebugger.prototype.getActiveStores = function () {
+		if (!this._locator) {
+			return [];
+		}
+
+		var activeStores = [],
+			activeStoresMap = {},
+			activeComponents = this.getActiveComponents();
+
+		activeComponents.forEach(function (component) {
+			if (!component.store) {
+				return;
+			}
+
+			if (activeStoresMap.hasOwnProperty(component.store)) {
+				activeStoresMap[component.store].push(component.name);
+				return;
+			}
+
+			activeStoresMap[component.store] = [component.name];
+		});
+
+		Object.keys(activeStoresMap).forEach(function (storeName) {
+			activeStores.push({
+				name: storeName,
+				components: activeStoresMap[storeName]
+			});
+		});
+
+		activeStores = activeStores.sort(function (first, second) {
+			return (first.name > second.name) ? 1 : -1;
+		});
+
+		return activeStores;
 	};
 
 	var catberryDebugger = new CatberryDebugger();

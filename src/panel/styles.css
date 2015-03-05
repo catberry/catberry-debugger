@@ -74,8 +74,11 @@
 	margin: 64px 0 20px 104px;
 }
 
-.components {
-
+.tab {
+	display: none;
+}
+.tab.is-active {
+	display: block;
 }
 
 .logo {

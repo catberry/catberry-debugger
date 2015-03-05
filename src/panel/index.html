@@ -19,15 +19,15 @@
 		<div class="navigation__item">
 			<a class="logo" href="https://www.npmjs.com/package/catberry" title="Catberry" target="_blank"></a>
 		</div>
-		<a class="navigation__item is-active" href="#" id="js-show-components">
+		<a class="navigation__item js-nav" href="#" id="js-nav-components">
 			<i class="fa fa-cubes icon"></i>
-			<div>Components</div>
-			<div id="js-component-count">0</div>
+			<div>Active components</div>
+			<div id="js-count-components">0</div>
 		</a>
-		<a class="navigation__item" href="#" id="js-show-stores">
+		<a class="navigation__item js-nav" href="#" id="js-nav-stores">
 			<i class="fa fa-server icon"></i>
-			<div>Stores</div>
-			<div id="js-stores-count">0</div>
+			<div>Active stores</div>
+			<div id="js-count-stores">0</div>
 		</a>
 		<a class="navigation__item" href="#" id="js-refresh">
 			<i class="fa fa-refresh icon"></i>
@@ -35,7 +35,7 @@
 		</a>
 	</nav>
 	<section class="content">
-		<section class="components">
+		<section class="tab js-tab" id="js-tab-components">
 			<table>
 				<thead>
 					<tr>
@@ -45,55 +45,21 @@
 						<th>Action</th>
 					</tr>
 				</thead>
-				<tbody id="js-catberry-components">
-					<tr>
-						<td>Name</td>
-						<td>Store</td>
-						<td>Id</td>
-						<td><button>Inspect</button></td>
-					</tr>
-					<tr>
-						<td>Name</td>
-						<td>Store</td>
-						<td>Id</td>
-						<td><button>Inspect</button></td>
-					</tr>
-					<tr>
-						<td>Name</td>
-						<td>Store</td>
-						<td>Id</td>
-						<td><button>Inspect</button></td>
-					</tr>
-					<tr>
-						<td>Name</td>
-						<td>Store</td>
-						<td>Id</td>
-						<td><button>Inspect</button></td>
-					</tr>
-					<tr>
-						<td>Name</td>
-						<td>Store</td>
-						<td>Id</td>
-						<td><button>Inspect</button></td>
-					</tr>
-					<tr>
-						<td>Name</td>
-						<td>Store</td>
-						<td>Id</td>
-						<td><button>Inspect</button></td>
-					</tr>
-					<tr>
-						<td>Name</td>
-						<td>Store</td>
-						<td>Id</td>
-						<td><button>Inspect</button></td>
-					</tr>
-					<tr>
-						<td>Name</td>
-						<td>Store</td>
-						<td>Id</td>
-						<td><button>Inspect</button></td>
-					</tr>
+				<tbody id="js-table-components">
+
+				</tbody>
+			</table>
+		</section>
+		<section class="tab js-tab" id="js-tab-stores">
+			<table>
+				<thead>
+				<tr>
+					<th>Store</th>
+					<th>Dependent components</th>
+				</tr>
+				</thead>
+				<tbody id="js-table-stores">
+
 				</tbody>
 			</table>
 		</section>

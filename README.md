@@ -6,8 +6,6 @@
 Catberry Debugger extends Chrome Developer Tools,
 adding a sidebar that displays [Catberry](https://github.com/catberry/catberry/) data context associated with the selected DOM element.
 
-*Catberry 4 is not supported yet.*
-
 ##Download
 Packaged version `./bin/catberry-debugger.crx`
 

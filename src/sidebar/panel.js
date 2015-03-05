@@ -6,8 +6,167 @@ var SECTIONS = {
 	},
 	currentSection = SECTIONS.components;
 
-function inspectInElementsPanel (component) {
-	var element = document.getElementById(component);
+/**
+ * Catberry panel.
+ * @param {Object} panelWindow
+ * @constructor
+ */
+function CatberryPanel (panelWindow) {
+	this._panelWindow = panelWindow;
+	this.addListeners();
+	this.render();
+}
+
+/**
+ * Panel's window
+ * @type {Object}
+ * @private
+ */
+CatberryPanel.prototype._panelWindow = null;
+
+/**
+ * Add listeners.
+ */
+CatberryPanel.prototype.addListeners = function () {
+	var panelWindow = this._panelWindow,
+		self = this;
+
+	var table = panelWindow.document.getElementById('js-content');
+	table.addEventListener('click', function (event) {
+		if(event.target && event.target.nodeName === "BUTTON") {
+			chrome.devtools.inspectedWindow.eval(
+				'(' + inspectInElementsPanel.toString() + ')' +
+				'("' + event.target.getAttribute('data-id') + '")'
+			);
+		}
+	});
+
+	var refreshElement = panelWindow.document
+		.getElementById('js-refresh');
+	refreshElement.addEventListener('click', function () {
+		self.render();
+	});
+
+	Object.keys(SECTIONS).forEach(function (sectionName) {
+		var navElement = panelWindow.document
+			.getElementById('js-nav-' + SECTIONS[sectionName]);
+		navElement.addEventListener('click', function () {
+			self.render();
+			self.changeSection(SECTIONS[sectionName]);
+		});
+	});
+};
+
+/**
+ * Renders components.
+ */
+CatberryPanel.prototype.renderComponents = function () {
+	this._renderTableAndCounter(SECTIONS.components, function (component) {
+		var content = '';
+		content += '<tr>';
+		content += '<td>' + component.name + '</td>';
+		content += '<td>' + (component.store ? component.store : '') + '</td>';
+		content += '<td>' + component.id + '</td>';
+		content += '<td>' + '<button data-id="' + component.id +
+			'">Inspect</button></td>';
+		content += '</tr>';
+		return content;
+	});
+};
+
+/**
+ * Renders stores.
+ */
+CatberryPanel.prototype.renderStores = function () {
+	this._renderTableAndCounter(SECTIONS.stores, function (component) {
+		var content = '';
+		content += '<tr>';
+		content += '<td>' + component.name + '</td>';
+		content += '<td>' + component.components.length + ' component' +
+			(component.components.length > 1 ? 's' : '') + '</td>';
+		content += '<td>' + component.components
+			.map(function (component) {
+				return component.name + ' <button data-id="' + component.id +
+					'">Inspect</button>';
+			})
+			.join('<br>') + '</td>';
+		content += '</tr>';
+		return content;
+	});
+};
+
+/**
+ * Renders all.
+ */
+CatberryPanel.prototype.render = function () {
+	this.renderComponents();
+	this.renderStores();
+};
+
+/**
+ * Renders table and counter.
+ * @param {string} section
+ * @param {Function} handler
+ * @private
+ */
+CatberryPanel.prototype._renderTableAndCounter = function (section, handler) {
+	var panelWindow = this._panelWindow,
+		methodNamePart = section[0].toUpperCase() + section.substring(1);
+
+	chrome.devtools.inspectedWindow.eval(
+		'(' + getDebuggerInstance.toString() + ')(null, document)' +
+			'.getActive' + methodNamePart + '()',
+		function (list, error) {
+			var table = panelWindow.document
+					.getElementById('js-table-' + section),
+				counter = panelWindow.document
+					.getElementById('js-count-' + section),
+				content = '';
+
+			list.forEach(function (item) {
+				content += handler(item);
+			});
+
+			table.innerHTML = content;
+			counter.innerHTML = list.length;
+		}
+	);
+};
+
+/**
+ * Changes active sections.
+ * @param {string} nextSection
+ */
+CatberryPanel.prototype.changeSection = function (nextSection) {
+	if (!SECTIONS.hasOwnProperty(nextSection)) {
+		return;
+	}
+
+	this._setNewActive('js-tab', 'js-tab-' + nextSection);
+	this._setNewActive('js-nav', 'js-nav-' + nextSection);
+
+	currentSection = nextSection;
+};
+
+/**
+ * Sets new active section.
+ * @param {string} groupClass
+ * @param {string} activeId
+ * @private
+ */
+CatberryPanel.prototype._setNewActive = function (groupClass, activeId) {
+	var elements = this._panelWindow.document.getElementsByClassName(groupClass);
+	for (var i = 0; i < elements.length; i++) {
+		elements[i].classList.remove('is-active');
+
+		if (elements[i].id === activeId) {
+			elements[i].classList.add('is-active');
+		}
+	}
+};
+
+function inspectInElementsPanel (id) {
+	var element = document.getElementById(id);
 	if (!element) {
 		return;
 	}
@@ -16,115 +175,13 @@ function inspectInElementsPanel (component) {
 	inspect(element);
 }
 
-function inspectComponent (event) {
-	if(event.target && event.target.nodeName === "BUTTON") {
-		chrome.devtools.inspectedWindow.eval(
-			'(' + inspectInElementsPanel.toString() + ')("' + event.target.getAttribute('data-id') + '")'
-		);
-	}
-}
-
-function addListeners (panelWindow) {
-	var table = panelWindow.document.getElementById('js-table-components');
-	table.addEventListener('click', inspectComponent);
-
-	var refreshElement = panelWindow.document.getElementById('js-refresh');
-	refreshElement.addEventListener('click', function () {
-		render(panelWindow);
-	});
-
-	var navComponents = panelWindow.document.getElementById('js-nav-components');
-	navComponents.addEventListener('click', function () {
-		render(panelWindow);
-		changeSection(panelWindow, SECTIONS.components);
-	});
-
-	var navStores = panelWindow.document.getElementById('js-nav-stores');
-	navStores.addEventListener('click', function () {
-		render(panelWindow);
-		changeSection(panelWindow, SECTIONS.stores);
-	});
-}
-
-function renderComponents (panelWindow) {
-	chrome.devtools.inspectedWindow.eval(
-		'(' + getDebuggerInstance.toString() + ')(null, document).getActiveComponents()',
-		function (components, error) {
-			var table = panelWindow.document.getElementById('js-table-components'),
-				counter = panelWindow.document.getElementById('js-count-components'),
-				content = '';
-
-			components.forEach(function (component) {
-				content += '<tr>';
-				content += '<td>' + component.name + '</td>';
-				content += '<td>' + (component.store ? component.store : '') + '</td>';
-				content += '<td>' + component.id + '</td>';
-				content += '<td>' + '<button data-id="' + component.id + '">Inspect</button></td>';
-				content += '</tr>';
-			});
-
-			table.innerHTML = content;
-			counter.innerHTML = components.length;
-		}
-	);
-}
-
-function renderStores (panelWindow) {
-	chrome.devtools.inspectedWindow.eval(
-		'(' + getDebuggerInstance.toString() + ')(null, document).getActiveStores()',
-		function (stores, error) {
-			var table = panelWindow.document.getElementById('js-table-stores'),
-				counter = panelWindow.document.getElementById('js-count-stores'),
-				content = '';
-
-			stores.forEach(function (component) {
-				content += '<tr>';
-				content += '<td>' + component.name + '</td>';
-				content += '<td>' + component.components.join(', ') + '</td>';
-				content += '</tr>';
-			});
-
-			table.innerHTML = content;
-			counter.innerHTML = stores.length;
-		}
-	);
-}
-
-function setNewActive (panelWindow, groupClass, activeId) {
-	var elements = panelWindow.document.getElementsByClassName(groupClass);
-	for (var i = 0; i < elements.length; i++) {
-		elements[i].classList.remove('is-active');
-
-		if (elements[i].id === activeId) {
-			elements[i].classList.add('is-active');
-		}
-	}
-}
-
-function changeSection (panelWindow, nextSection) {
-	if (!SECTIONS.hasOwnProperty(nextSection)) {
-		return;
-	}
-
-	setNewActive(panelWindow, 'js-tab', 'js-tab-' + nextSection);
-	setNewActive(panelWindow, 'js-nav', 'js-nav-' + nextSection);
-
-	currentSection = nextSection;
-}
-
-function render (panelWindow) {
-	renderComponents(panelWindow);
-	renderStores(panelWindow);
-}
-
 chrome.devtools.panels.create(
 	chrome.i18n.getMessage('sidebarTitle'),
 	'icons/icon128.png',
 	'panel/index.html',
 	function (panel) {
 		panel.onShown.addListener(function(panelWindow) {
-			addListeners(panelWindow);
-			render(panelWindow);
-			changeSection(panelWindow, SECTIONS.components);
+			var catberryPanel = new CatberryPanel(panelWindow);
+			catberryPanel.changeSection(SECTIONS.components);
 		});
 	});

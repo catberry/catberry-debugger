@@ -81,9 +81,13 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 	 * @returns {Object}
 	 */
 	CatberryDebugger.prototype.getCollectedData = function () {
+		if (!this._element) {
+			return null;
+		}
+
 		var data = {
 			id: this._element.getAttribute('id'),
-			component: this._element.tagName.toLowerCase().substring(4),
+			component: this._element.tagName.toLowerCase(),
 			store: this._element.getAttribute('cat-store') ?
 				this._clearProto({
 					name: this._element.getAttribute('cat-store'),
@@ -168,11 +172,11 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 			}
 
 			if (activeStoresMap.hasOwnProperty(component.store)) {
-				activeStoresMap[component.store].push(component.name);
+				activeStoresMap[component.store].push(component);
 				return;
 			}
 
-			activeStoresMap[component.store] = [component.name];
+			activeStoresMap[component.store] = [component];
 		});
 
 		Object.keys(activeStoresMap).forEach(function (storeName) {

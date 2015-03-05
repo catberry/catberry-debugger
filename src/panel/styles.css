@@ -39,6 +39,8 @@
 }
 .header__link:hover {
 	color: rgba(0, 0, 0, 1);
+	font-weight: bold;
+	text-decoration: underline;
 }
 
 .navigation {
@@ -64,6 +66,7 @@
 .navigation__item.is-active,
 .navigation__item:hover {
 	color: rgba(0, 0, 0, 1);
+	font-weight: bold;
 }
 .navigation__item.is-active > .icon,
 .navigation__item:hover > .icon {
@@ -108,13 +111,21 @@ table th {
 	font-weight: 700;
 	text-transform: none;
 	border-bottom: 1px solid #d4d4d5;
+	border-left: 1px solid #d4d4d5;
 	vertical-align: middle;
 }
 
 table td {
 	padding: .7em .8em;
-	vertical-align: middle;
+	vertical-align: top;
+	line-height: 30px;
 	border-top: 1px solid #d4d4d5;
+	border-left: 1px solid #d4d4d5;
+}
+table td:first-child,
+table th:first-child {
+	border-left: none;
+	font-weight: bold;
 }
 table tr:first-child td {
 	border-top: none;

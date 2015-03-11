@@ -8,8 +8,7 @@
 	"description": "Catberry Debugger extends Chrome Developer Tools, adding a sidebar that displays Catberry data context associated with the selected DOM element",
 	"homepage": "https://github.com/catberry/catberry-debugger",
 	"keywords": [
-		"stream", "web", "isomorphic", "framework", "middleware", "connect",
-		"dust", "module", "express", "chrome", "extension", "catberry"
+		"web", "isomorphic", "framework", "chrome", "extension", "catberry"
 	],
 	"bugs": {
 		"url": "https://github.com/catberry/catberry-debugger/issues",

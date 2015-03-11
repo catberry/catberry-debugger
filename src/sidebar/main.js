@@ -86,18 +86,22 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 		}
 
 		var data = {
-			id: this._element.getAttribute('id'),
-			component: this._element.tagName.toLowerCase(),
-			store: this._element.getAttribute('cat-store') ?
-				this._clearProto({
-					name: this._element.getAttribute('cat-store'),
-					data: null
-				}) :
-				null
-		};
+				id: this._element.getAttribute('id'),
+				component: this._element.tagName.toLowerCase(),
+				store: this._element.getAttribute('cat-store') ?
+					this._clearProto({
+						name: this._element.getAttribute('cat-store'),
+						state: null,
+						data: null
+					}) :
+					null
+			},
+			currentStateMap = this._locator.resolve('stateProvider')
+				.getStateByUri(this._locator.resolve('requestRouter')._location);
 
 		if (data.store) {
 			data.store.data = this._clearProto(this._collectedStoreData) || null;
+			data.store.state = currentStateMap[data.store.name] || null;
 		}
 
 		return this._clearProto(data);
@@ -191,6 +195,33 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 		});
 
 		return activeStores;
+	};
+
+	/**
+	 * Gets current state.
+	 * @returns {Array}
+	 */
+	CatberryDebugger.prototype.getActiveState = function () {
+		if (!this._locator) {
+			return [];
+		}
+
+		var currentState = [],
+			currentStateMap = this._locator.resolve('stateProvider')
+				.getStateByUri(this._locator.resolve('requestRouter')._location);
+
+		Object.keys(currentStateMap).forEach(function (storeName) {
+			currentState.push({
+				store: storeName,
+				data: currentStateMap[storeName]
+			});
+		});
+
+		currentState = currentState.sort(function (first, second) {
+			return (first.store > second.store) ? 1 : -1;
+		});
+
+		return currentState;
 	};
 
 	var catberryDebugger = new CatberryDebugger();

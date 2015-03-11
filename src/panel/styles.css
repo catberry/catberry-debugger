@@ -39,7 +39,6 @@
 }
 .header__link:hover {
 	color: rgba(0, 0, 0, 1);
-	font-weight: bold;
 	text-decoration: underline;
 }
 
@@ -66,7 +65,6 @@
 .navigation__item.is-active,
 .navigation__item:hover {
 	color: rgba(0, 0, 0, 1);
-	font-weight: bold;
 }
 .navigation__item.is-active > .icon,
 .navigation__item:hover > .icon {

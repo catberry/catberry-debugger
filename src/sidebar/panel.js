@@ -3,7 +3,8 @@
 var SECTIONS = {
 		components: 'components',
 		stores: 'stores',
-		state: 'state'
+		state: 'state',
+		routes: 'routes'
 	},
 	currentSection = SECTIONS.components;
 
@@ -111,12 +112,46 @@ CatberryPanel.prototype.renderState = function () {
 };
 
 /**
+ * Renders routes.
+ */
+CatberryPanel.prototype.renderRoutes = function () {
+	this._renderTableAndCounter(SECTIONS.routes, function (route) {
+		var content = '';
+		content += '<tr>';
+		content += '<td>' + route.expression + '</td>';
+		content += '<td>' + (route.map ? 'true' : '') + '</td>';
+		content += '</tr>';
+		return content;
+	});
+};
+
+/**
+ * Renders version.
+ */
+CatberryPanel.prototype.renderVersion = function () {
+	var panelWindow = this._panelWindow;
+
+	chrome.devtools.inspectedWindow.eval(
+		'(' + getDebuggerInstance.toString() + ')(null, document)' +
+		'.getVersion()',
+		function (version, error) {
+			var versionElement = panelWindow.document
+				.getElementById('js-catberry-version');
+
+			versionElement.innerText = 'Project\'s Catberry version: ' + version;
+		}
+	);
+};
+
+/**
  * Renders all.
  */
 CatberryPanel.prototype.render = function () {
 	this.renderComponents();
 	this.renderStores();
 	this.renderState();
+	this.renderRoutes();
+	this.renderVersion();
 };
 
 /**

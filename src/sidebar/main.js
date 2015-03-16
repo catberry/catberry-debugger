@@ -7,6 +7,7 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 	 * @constructor
 	 */
 	function CatberryDebugger () {
+		this._catberry = window.catberry;
 		this._locator= ('catberry' in window)?
 			window.catberry.locator : null;
 	}
@@ -31,6 +32,13 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 	 * @private
 	 */
 	CatberryDebugger.prototype._locator= null;
+
+	/**
+	 * Catberry
+	 * @type {Object|null}
+	 * @private
+	 */
+	CatberryDebugger.prototype._catberry = null;
 
 	/**
 	 * Inits data
@@ -222,6 +230,44 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 		});
 
 		return currentState;
+	};
+
+	/**
+	 * Gets routes.
+	 * @returns {Array}
+	 */
+	CatberryDebugger.prototype.getActiveRoutes = function () {
+		if (!this._locator) {
+			return [];
+		}
+
+		var routes = this._locator.resolveAll('routeDefinition');
+
+		routes = routes.map(function (route) {
+			if (typeof route === 'string') {
+				return {
+					expression: route
+				};
+			}
+			return route;
+		});
+
+		routes = routes.sort(function (first, second) {
+			return (first.expression > second.expression) ? 1 : -1;
+		});
+
+		return routes;
+	};
+
+	/**
+	 * Gets version
+	 * @returns {string}
+	 */
+	CatberryDebugger.prototype.getVersion = function () {
+		if (!this._catberry) {
+			return '';
+		}
+		return this._catberry.version || '';
 	};
 
 	var catberryDebugger = new CatberryDebugger();

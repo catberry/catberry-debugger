@@ -32,14 +32,21 @@
 	vertical-align: middle;
 	margin-right: 20px;
 }
+.header__item--right {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 200px;
+	padding-top: 18px;
+	text-align: right;
+	z-index: 4;
+}
 
 .header__link {
-	text-decoration: none;
 	color: rgba(0, 0, 0, 0.8);
 }
 .header__link:hover {
 	color: rgba(0, 0, 0, 1);
-	text-decoration: underline;
 }
 
 .navigation {

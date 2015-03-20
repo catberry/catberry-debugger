@@ -5,7 +5,7 @@
 		"name": "Julia Rechkunova",
 		"email": "julia.rechkunova@gmail.com"
 	},
-	"description": "Catberry Debugger extends Chrome Developer Tools, adding a sidebar that displays Catberry data context associated with the selected DOM element",
+	"description": "Catberry Debugger extends Chrome Developer Tools, adding a sidebar that displays Catberry data context associated with the selected DOM element and more",
 	"homepage": "https://github.com/catberry/catberry-debugger",
 	"keywords": [
 		"web", "isomorphic", "framework", "chrome", "extension", "catberry"

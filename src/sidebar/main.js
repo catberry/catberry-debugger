@@ -7,6 +7,7 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 	 * @constructor
 	 */
 	function CatberryDebugger () {
+		this._catberry = window.catberry;
 		this._locator= ('catberry' in window)?
 			window.catberry.locator : null;
 	}
@@ -31,6 +32,13 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 	 * @private
 	 */
 	CatberryDebugger.prototype._locator= null;
+
+	/**
+	 * Catberry
+	 * @type {Object|null}
+	 * @private
+	 */
+	CatberryDebugger.prototype._catberry = null;
 
 	/**
 	 * Inits data
@@ -86,18 +94,22 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 		}
 
 		var data = {
-			id: this._element.getAttribute('id'),
-			component: this._element.tagName.toLowerCase(),
-			store: this._element.getAttribute('cat-store') ?
-				this._clearProto({
-					name: this._element.getAttribute('cat-store'),
-					data: null
-				}) :
-				null
-		};
+				id: this._element.getAttribute('id'),
+				component: this._element.tagName.toLowerCase(),
+				store: this._element.getAttribute('cat-store') ?
+					this._clearProto({
+						name: this._element.getAttribute('cat-store'),
+						state: null,
+						data: null
+					}) :
+					null
+			},
+			currentStateMap = this._locator.resolve('stateProvider')
+				.getStateByUri(this._locator.resolve('requestRouter')._location);
 
 		if (data.store) {
 			data.store.data = this._clearProto(this._collectedStoreData) || null;
+			data.store.state = currentStateMap[data.store.name] || null;
 		}
 
 		return this._clearProto(data);
@@ -191,6 +203,71 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 		});
 
 		return activeStores;
+	};
+
+	/**
+	 * Gets current state.
+	 * @returns {Array}
+	 */
+	CatberryDebugger.prototype.getActiveState = function () {
+		if (!this._locator) {
+			return [];
+		}
+
+		var currentState = [],
+			currentStateMap = this._locator.resolve('stateProvider')
+				.getStateByUri(this._locator.resolve('requestRouter')._location);
+
+		Object.keys(currentStateMap).forEach(function (storeName) {
+			currentState.push({
+				store: storeName,
+				data: currentStateMap[storeName]
+			});
+		});
+
+		currentState = currentState.sort(function (first, second) {
+			return (first.store > second.store) ? 1 : -1;
+		});
+
+		return currentState;
+	};
+
+	/**
+	 * Gets routes.
+	 * @returns {Array}
+	 */
+	CatberryDebugger.prototype.getActiveRoutes = function () {
+		if (!this._locator) {
+			return [];
+		}
+
+		var routes = this._locator.resolveAll('routeDefinition');
+
+		routes = routes.map(function (route) {
+			if (typeof route === 'string') {
+				return {
+					expression: route
+				};
+			}
+			return route;
+		});
+
+		routes = routes.sort(function (first, second) {
+			return (first.expression > second.expression) ? 1 : -1;
+		});
+
+		return routes;
+	};
+
+	/**
+	 * Gets version
+	 * @returns {string}
+	 */
+	CatberryDebugger.prototype.getVersion = function () {
+		if (!this._catberry) {
+			return '';
+		}
+		return this._catberry.version || '';
 	};
 
 	var catberryDebugger = new CatberryDebugger();

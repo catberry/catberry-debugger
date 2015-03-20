@@ -6,18 +6,21 @@
 <body class="document">
 	<header class="header">
 		<div class="header__item">
-			<a class="logo" href="https://www.npmjs.com/package/catberry" title="Catberry" target="_blank"></a>
+			<a class="logo" href="http://catberry.org" title="Catberry" target="_blank"></a>
 		</div>
 		<div class="header__item">
-			<a class="header__link" href="https://github.com/catberry/catberry/" target="_blank">Catberry</a>
+			<a class="header__link" href="http://catberry.org" target="_blank">Catberry</a>
 		</div>
 		<div class="header__item">
-			<a class="header__link" href="https://github.com/catberry/catberry/blob/master/docs/index.md" target="_blank">Docs</a>
+			<a class="header__link" href="http://catberry.org/documentation" target="_blank">Docs</a>
+		</div>
+		<div class="header__item header__item--right">
+			<span id="js-catberry-version"></span>
 		</div>
 	</header>
 	<nav class="navigation">
 		<div class="navigation__item">
-			<a class="logo" href="https://www.npmjs.com/package/catberry" title="Catberry" target="_blank"></a>
+			<a class="logo" href="http://catberry.org" title="Catberry" target="_blank"></a>
 		</div>
 		<a class="navigation__item js-nav" href="#" id="js-nav-components">
 			<i class="fa fa-cubes icon"></i>
@@ -28,6 +31,16 @@
 			<i class="fa fa-server icon"></i>
 			<div>Active stores</div>
 			<div id="js-count-stores">0</div>
+		</a>
+		<a class="navigation__item js-nav" href="#" id="js-nav-state">
+			<i class="fa fa-dashboard icon"></i>
+			<div>Current state</div>
+			<div id="js-count-state">0</div>
+		</a>
+		<a class="navigation__item js-nav" href="#" id="js-nav-routes">
+			<i class="fa fa-paper-plane icon"></i>
+			<div>Routes</div>
+			<div id="js-count-routes">0</div>
 		</a>
 		<a class="navigation__item" href="#" id="js-refresh">
 			<i class="fa fa-refresh icon"></i>
@@ -59,6 +72,32 @@
 				</tr>
 				</thead>
 				<tbody id="js-table-stores">
+
+				</tbody>
+			</table>
+		</section>
+		<section class="tab js-tab" id="js-tab-state">
+			<table>
+				<thead>
+				<tr>
+					<th>Bound store</th>
+					<th>State data</th>
+				</tr>
+				</thead>
+				<tbody id="js-table-state">
+
+				</tbody>
+			</table>
+		</section>
+		<section class="tab js-tab" id="js-tab-routes">
+			<table>
+				<thead>
+				<tr>
+					<th>Route</th>
+					<th>Has map function</th>
+				</tr>
+				</thead>
+				<tbody id="js-table-routes">
 
 				</tbody>
 			</table>

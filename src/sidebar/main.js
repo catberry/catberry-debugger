@@ -270,6 +270,54 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 		return this._catberry.version || '';
 	};
 
+	/**
+	 * Gets components with not valid id.
+	 * @returns {Array}
+	 */
+	CatberryDebugger.prototype.getActiveIds = function () {
+		if (!this._locator) {
+			return [];
+		}
+
+		var allComponents = this._locator.resolveAll('component')
+			.map(function (component) {
+				return 'cat-' + component.name;
+			});
+
+		var componentsWithNotValidId = [];
+
+		var getParentComponent = function (element) {
+			var parent = element.parentElement;
+			while (
+				parent && parent.tagName !== 'BODY' &&
+				parent.tagName.indexOf('CAT') !== 0
+			)  {
+				parent = parent.parentElement;
+			}
+
+			return parent.tagName.indexOf('CAT') === 0 ? parent : null;
+		};
+
+		allComponents.forEach(function (component) {
+			var elements = domDocument.getElementsByTagName(component),
+				components = [];
+			for (var i = 0; i < elements.length; i++) {
+				var element = elements[i],
+					parentComponent = getParentComponent(element);
+				if (parentComponent && element.id.indexOf(parentComponent.id) === -1) {
+					components.push({
+						id: element.id,
+						recommendedId: parentComponent.id + ':' + component.substring(4),
+						name: component
+					});
+				}
+			}
+			componentsWithNotValidId = componentsWithNotValidId.concat(components);
+		});
+
+		return componentsWithNotValidId;
+	};
+
 	var catberryDebugger = new CatberryDebugger();
 	catberryDebugger.init(selectedDomElement);
 

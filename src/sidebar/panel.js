@@ -4,7 +4,8 @@ var SECTIONS = {
 		components: 'components',
 		stores: 'stores',
 		state: 'state',
-		routes: 'routes'
+		routes: 'routes',
+		ids: 'ids'
 	},
 	currentSection = SECTIONS.components;
 
@@ -144,6 +145,22 @@ CatberryPanel.prototype.renderVersion = function () {
 };
 
 /**
+ * Renders ids page.
+ */
+CatberryPanel.prototype.renderIds = function () {
+	this._renderTableAndCounter(SECTIONS.ids, function (component) {
+		var content = '';
+		content += '<tr>';
+		content += '<td>' + component.name + '</td>';
+		content += '<td>' + component.id + '</td>';
+		content += '<td>' + component.recommendedId + '</td>';
+		content += '<td>' + '<button data-id="' + component.id + '">Inspect</button></td>';
+		content += '</tr>';
+		return content;
+	});
+};
+
+/**
  * Renders all.
  */
 CatberryPanel.prototype.render = function () {
@@ -152,6 +169,7 @@ CatberryPanel.prototype.render = function () {
 	this.renderState();
 	this.renderRoutes();
 	this.renderVersion();
+	this.renderIds();
 };
 
 /**

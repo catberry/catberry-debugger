@@ -31,3 +31,8 @@ Panel with current project state
 Panel with routes
 
 ![Catberry Debugger Panel with routes](https://raw.githubusercontent.com/catberry/catberry-debugger/master/example/screenshots/panel-routes.png)
+
+##Pack from source code
+```
+make package
+```

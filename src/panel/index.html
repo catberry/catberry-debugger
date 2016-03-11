@@ -46,6 +46,11 @@
 			<i class="fa fa-refresh icon"></i>
 			<div>Refresh data</div>
 		</a>
+		<a class="navigation__item js-nav" href="#" id="js-nav-ids">
+			<i class="fa fa-exclamation-triangle icon"></i>
+			<div>ID's warning</div>
+			<div id="js-count-ids">0</div>
+		</a>
 	</nav>
 	<section class="content" id="js-content">
 		<section class="tab js-tab" id="js-tab-components">
@@ -98,6 +103,21 @@
 				</tr>
 				</thead>
 				<tbody id="js-table-routes">
+
+				</tbody>
+			</table>
+		</section>
+        <section class="tab js-tab" id="js-tab-ids">
+			<table>
+				<thead>
+				<tr>
+					<th>Component</th>
+					<th>Component id</th>
+                    <th>Recommended id</th>
+					<th>Action</th>
+				</tr>
+				</thead>
+				<tbody id="js-table-ids">
 
 				</tbody>
 			</table>

@@ -4,7 +4,7 @@
 		"description": "Extension name"
 	},
 	"extDescription": {
-		"message": "Catberry Debugger extends Chrome Developer Tools, adding a sidebar that displays information about Catberry component associated with the selected DOM element and more",
+		"message": "Extends Chrome Developer Tools, adding panels that display information about Catberry components and more",
 		"description": "Extension description"
 	},
 	"sidebarTitle": {

@@ -232,7 +232,7 @@ function inspectInElementsPanel (tag, id, document) {
 
 	var elementsByTag = document.getElementsByTagName(tag);
 	for(var i = 0; i < elementsByTag.length; i++) {
-		innerId = elementsByTag[i].$catberryId || elementsByTag.id;
+		innerId = elementsByTag[i].$catberryId || elementsByTag[i].id;
 		if (innerId === id) {
 			element = elementsByTag[i];
 			break;

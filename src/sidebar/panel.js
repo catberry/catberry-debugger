@@ -4,8 +4,7 @@ var SECTIONS = {
 		components: 'components',
 		stores: 'stores',
 		state: 'state',
-		routes: 'routes',
-		ids: 'ids'
+		routes: 'routes'
 	},
 	currentSection = SECTIONS.components;
 
@@ -39,7 +38,8 @@ CatberryPanel.prototype.addListeners = function () {
 		if(event.target && event.target.nodeName === "BUTTON") {
 			chrome.devtools.inspectedWindow.eval(
 				'(' + inspectInElementsPanel.toString() + ')' +
-				'("' + event.target.getAttribute('data-id') + '")'
+				'("' + event.target.getAttribute('data-tag') + '", "' +
+					event.target.getAttribute('data-id') + '", document)'
 			);
 		}
 	});
@@ -65,13 +65,22 @@ CatberryPanel.prototype.addListeners = function () {
  */
 CatberryPanel.prototype.renderComponents = function () {
 	this._renderTableAndCounter(SECTIONS.components, function (component) {
+		var attributes = '';
+		if (component.attributes) {
+			Object.keys(component.attributes).forEach(function (attributeName) {
+				if (attributeName === 'cat-store') {
+					attributes += '<strong>' + attributeName + '</strong>';
+				} else {
+					attributes += attributeName;
+				}
+				attributes += '="' + component.attributes[attributeName] + '"<br/>';
+			});
+		}
 		var content = '';
 		content += '<tr>';
 		content += '<td>' + component.name + '</td>';
-		content += '<td>' + (component.store ? component.store : '') + '</td>';
-		content += '<td>' + component.id + '</td>';
-		content += '<td>' + '<button data-id="' + component.id +
-			'">Inspect</button></td>';
+		content += '<td>' + attributes + '</td>';
+		content += '<td><button data-id="' + component.id + '" data-tag="' + component.name + '">Inspect</button></td>';
 		content += '</tr>';
 		return content;
 	});
@@ -89,8 +98,8 @@ CatberryPanel.prototype.renderStores = function () {
 			(store.components.length > 1 ? 's' : '') + '</td>';
 		content += '<td>' + store.components
 			.map(function (component) {
-				return component.name + ' <button data-id="' + component.id +
-					'">Inspect</button>';
+				return component.name +
+					' <button data-id="' + component.id + '" data-tag="' + component.name + '">Inspect</button>';
 			})
 			.join('<br>') + '</td>';
 		content += '</tr>';
@@ -145,22 +154,6 @@ CatberryPanel.prototype.renderVersion = function () {
 };
 
 /**
- * Renders ids page.
- */
-CatberryPanel.prototype.renderIds = function () {
-	this._renderTableAndCounter(SECTIONS.ids, function (component) {
-		var content = '';
-		content += '<tr>';
-		content += '<td>' + component.name + '</td>';
-		content += '<td>' + component.id + '</td>';
-		content += '<td>' + component.recommendedId + '</td>';
-		content += '<td>' + '<button data-id="' + component.id + '">Inspect</button></td>';
-		content += '</tr>';
-		return content;
-	});
-};
-
-/**
  * Renders all.
  */
 CatberryPanel.prototype.render = function () {
@@ -169,7 +162,6 @@ CatberryPanel.prototype.render = function () {
 	this.renderState();
 	this.renderRoutes();
 	this.renderVersion();
-	this.renderIds();
 };
 
 /**
@@ -234,8 +226,19 @@ CatberryPanel.prototype._setNewActive = function (groupClass, activeId) {
 	}
 };
 
-function inspectInElementsPanel (id) {
-	var element = document.getElementById(id);
+function inspectInElementsPanel (tag, id, document) {
+	var element = null,
+		innerId;
+
+	var elementsByTag = document.getElementsByTagName(tag);
+	for(var i = 0; i < elementsByTag.length; i++) {
+		innerId = elementsByTag[i].$catberryId || elementsByTag.id;
+		if (innerId === id) {
+			element = elementsByTag[i];
+			break;
+		}
+	}
+
 	if (!element) {
 		return;
 	}

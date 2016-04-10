@@ -123,7 +123,7 @@ table th {
 table td {
 	padding: .7em .8em;
 	vertical-align: top;
-	line-height: 30px;
+	line-height: 1.5;
 	border-top: 1px solid #d4d4d5;
 	border-left: 1px solid #d4d4d5;
 }

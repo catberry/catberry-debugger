@@ -41,6 +41,15 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 	CatberryDebugger.prototype._catberry = null;
 
 	/**
+	 * Gets Catberry element id.
+	 * @param {Element} element
+	 * @returns {string}
+     */
+	CatberryDebugger.prototype.getElementInnerId = function (element) {
+		return element.$catberryId || element.id;
+	};
+
+	/**
 	 * Inits data
 	 * @param {HTMLElement} domElement
 	 */
@@ -55,10 +64,9 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 			return;
 		}
 
-		var id = domElement.getAttribute('id'),
-			tagName = domElement.tagName.toLowerCase();
+		var tagName = domElement.tagName.toLowerCase();
 
-		if (!/^cat-.+/.test(tagName) || !id) {
+		if (!/^cat-.+/.test(tagName)) {
 			return;
 		}
 
@@ -85,6 +93,22 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 	};
 
 	/**
+	 * Gets attributes for element.
+	 * @param {Element} element
+	 * @returns {Object}
+     */
+	CatberryDebugger.prototype.getAttributes = function (element) {
+		var attributes = {},
+			attribute;
+		for (var i = 0; i < element.attributes.length; i++) {
+			attribute = element.attributes[i];
+			attributes[attribute.name] = attribute.value;
+		}
+
+		return this._clearProto(attributes);
+	};
+
+	/**
 	 * Gets all collected data by DOM element's id
 	 * @returns {Object}
 	 */
@@ -94,8 +118,8 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 		}
 
 		var data = {
-				id: this._element.getAttribute('id'),
 				component: this._element.tagName.toLowerCase(),
+				attributes: this._element.attributes.length ? this.getAttributes(this._element) : null,
 				store: this._element.getAttribute('cat-store') ?
 					this._clearProto({
 						name: this._element.getAttribute('cat-store'),
@@ -143,16 +167,19 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 				return 'cat-' + component.name;
 			});
 
-		var activeComponents = [];
+		var activeComponents = [],
+			self = this;
 
 		allComponents.forEach(function (component) {
 			var elements = domDocument.getElementsByTagName(component),
 				components = [];
 			for (var i = 0; i < elements.length; i++) {
 				components.push({
-					id: elements[i].id,
+					id: self.getElementInnerId(elements[i]),
+					element: elements[i],
 					store: elements[i].getAttribute('cat-store'),
-					name: component
+					name: component,
+					attributes: elements[i].attributes.length ? self.getAttributes(elements[i]) : null
 				});
 			}
 			activeComponents = activeComponents.concat(components);
@@ -268,54 +295,6 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 			return '';
 		}
 		return this._catberry.version || '';
-	};
-
-	/**
-	 * Gets components with not valid id.
-	 * @returns {Array}
-	 */
-	CatberryDebugger.prototype.getActiveIds = function () {
-		if (!this._locator) {
-			return [];
-		}
-
-		var allComponents = this._locator.resolveAll('component')
-			.map(function (component) {
-				return 'cat-' + component.name;
-			});
-
-		var componentsWithNotValidId = [];
-
-		var getParentComponent = function (element) {
-			var parent = element.parentElement;
-			while (
-				parent && parent.tagName !== 'BODY' &&
-				parent.tagName.indexOf('CAT') !== 0
-			)  {
-				parent = parent.parentElement;
-			}
-
-			return parent.tagName.indexOf('CAT') === 0 ? parent : null;
-		};
-
-		allComponents.forEach(function (component) {
-			var elements = domDocument.getElementsByTagName(component),
-				components = [];
-			for (var i = 0; i < elements.length; i++) {
-				var element = elements[i],
-					parentComponent = getParentComponent(element);
-				if (parentComponent && element.id.indexOf(parentComponent.id) === -1) {
-					components.push({
-						id: element.id,
-						recommendedId: parentComponent.id + ':' + component.substring(4),
-						name: component
-					});
-				}
-			}
-			componentsWithNotValidId = componentsWithNotValidId.concat(components);
-		});
-
-		return componentsWithNotValidId;
 	};
 
 	var catberryDebugger = new CatberryDebugger();

@@ -1,6 +1,6 @@
 {
 	"name": "__MSG_extName__",
-	"version": "0.5.0",
+	"version": "0.6.0",
 	"description": "__MSG_extDescription__",
 	"devtools_page": "sidebar/index.html",
 	"icons": {

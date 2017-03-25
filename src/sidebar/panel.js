@@ -168,9 +168,7 @@ class CatberryPanel {
 				const counter = panelWindow.document
 					.getElementById(`js-count-${section}`);
 
-				table.innerHTML = list.reduce((content, item) => {
-					content += handler(item);
-				}, '');
+				table.innerHTML = list.reduce((content, item) => content + handler(item), '');
 				counter.innerHTML = list.length;
 			}
 		);

@@ -19,11 +19,10 @@
 		"url": "git://github.com/catberry/catberry-debugger.git"
 	},
 	"devDependencies": {
-		"jscs": "~1.6.0",
-		"jshint": "^2.5.0"
+		"eslint": "^3.18.0"
 	},
 	"engines": {
-		"node": "~0.10.26"
+		"node": "^6.10"
 	},
 	"scripts": {
 		"test": "make"
@@ -35,6 +34,6 @@
 		}
 	],
 	"dependencies": {
-		"crx": "^3.0.3"
+		"crx": "^3.2.1"
 	}
 }

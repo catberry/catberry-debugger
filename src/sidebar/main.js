@@ -1,303 +1,286 @@
 'use strict';
 
-function getDebuggerInstance (selectedDomElement, domDocument) {
+/**
+ * Get debugger instance
+ * @param {Element} selectedDomElement
+ * @param {Document} domDocument
+ * @return {Object} instance
+ */
+function getDebuggerInstance(selectedDomElement, domDocument) {
 
-	/**
-	 * Catberry debugger
-	 * @constructor
-	 */
-	function CatberryDebugger () {
-		this._catberry = window.catberry;
-		this._locator= ('catberry' in window)?
-			window.catberry.locator : null;
-	}
+	class CatberryDebugger {
 
-	/**
-	 * Selected DOM element
-	 * @type {Element}
-	 * @private
-	 */
-	CatberryDebugger.prototype._element = null;
+		/**
+		 * Catberry debugger
+		 * @constructor
+		 */
+		constructor() {
 
-	/**
-	 * Collected store data
-	 * @type {Object|null}
-	 * @private
-	 */
-	CatberryDebugger.prototype._collectedStoreData = null;
+			/**
+			 * Selected DOM element
+			 * @type {Element}
+			 * @private
+			 */
+			this._element = null;
 
-	/**
-	 * Locator in Catberry
-	 * @type {Object|null}
-	 * @private
-	 */
-	CatberryDebugger.prototype._locator= null;
+			/**
+			 * Collected store data
+			 * @type {Object|null}
+			 * @private
+			 */
+			this._collectedStoreData = null;
 
-	/**
-	 * Catberry
-	 * @type {Object|null}
-	 * @private
-	 */
-	CatberryDebugger.prototype._catberry = null;
+			/**
+			 * Catberry
+			 * @type {Object|null}
+			 * @private
+			 */
+			this._catberry = window.catberry;
 
-	/**
-	 * Gets Catberry element id.
-	 * @param {Element} element
-	 * @returns {string}
-     */
-	CatberryDebugger.prototype.getElementInnerId = function (element) {
-		return element.$catberryId || element.id;
-	};
+			/**
+			 * Locator in Catberry
+			 * @type {Object|null}
+			 * @private
+			 */
 
-	/**
-	 * Inits data
-	 * @param {HTMLElement} domElement
-	 */
-	CatberryDebugger.prototype.init = function (domElement) {
-		if (!this._locator) {
-			return;
+			this._locator = ('catberry' in window) ? window.catberry.locator : null;
 		}
 
-		this._element = null;
-
-		if (!domElement) {
-			return;
+		/**
+		 * Gets Catberry element id.
+		 * @param {Element} element
+		 * @returns {string}
+		 */
+		getElementInnerId(element) {
+			return element.$catberryId || element.id;
 		}
 
-		var tagName = domElement.tagName.toLowerCase();
+		/**
+		 * Inits data
+		 * @param {HTMLElement} domElement
+		 */
+		init(domElement) {
+			if (!this._locator) {
+				return;
+			}
 
-		if (!/^cat-.+/.test(tagName)) {
-			return;
+			this._element = null;
+
+			if (!domElement) {
+				return;
+			}
+
+			const tagName = domElement.tagName.toLowerCase();
+
+			if (!/^cat-.+/.test(tagName)) {
+				return;
+			}
+
+			this._element = domElement;
 		}
 
-		this._element = domElement;
-	};
+		/**
+		 * Gets store data
+		 * @returns {Object|null}
+		 */
+		getStoreData() {
+			if (!this._locator || !this._element) {
+				return null;
+			}
 
-	/**
-	 * Gets store data
-	 * @returns {Object|null}
-	 */
-	CatberryDebugger.prototype.getStoreData = function () {
-		if (!this._locator || !this._element) {
-			return null;
+			const storeName = this._element.getAttribute('cat-store');
+
+			return this._locator.resolve('documentRenderer')._storeDispatcher // eslint-disable-line
+				.getStoreData(storeName)
+				.then(data => {
+					this._collectedStoreData = JSON.parse(JSON.stringify(data));
+				});
 		}
 
-		var storeName = this._element.getAttribute('cat-store'),
-			self = this;
+		/**
+		 * Gets attributes for element.
+		 * @param {Element} element
+		 * @returns {Object}
+		 */
+		getAttributes(element) {
+			const attributes = {};
+			let attribute;
+			for (let i = 0; i < element.attributes.length; i++) {
+				attribute = element.attributes[i];
+				attributes[attribute.name] = attribute.value;
+			}
 
-		return this._locator.resolve('documentRenderer')._storeDispatcher
-			.getStoreData(storeName)
-			.then(function (data) {
-				self._collectedStoreData = JSON.parse(JSON.stringify(data));
-			});
-	};
-
-	/**
-	 * Gets attributes for element.
-	 * @param {Element} element
-	 * @returns {Object}
-     */
-	CatberryDebugger.prototype.getAttributes = function (element) {
-		var attributes = {},
-			attribute;
-		for (var i = 0; i < element.attributes.length; i++) {
-			attribute = element.attributes[i];
-			attributes[attribute.name] = attribute.value;
+			return attributes;
 		}
 
-		return this._clearProto(attributes);
-	};
+		/**
+		 * Gets all collected data by DOM element's id
+		 * @returns {Object}
+		 */
+		getCollectedData() {
+			if (!this._element) {
+				return null;
+			}
 
-	/**
-	 * Gets all collected data by DOM element's id
-	 * @returns {Object}
-	 */
-	CatberryDebugger.prototype.getCollectedData = function () {
-		if (!this._element) {
-			return null;
-		}
-
-		var data = {
+			const data = {
 				component: this._element.tagName.toLowerCase(),
 				attributes: this._element.attributes.length ? this.getAttributes(this._element) : null,
 				store: this._element.getAttribute('cat-store') ?
-					this._clearProto({
-						name: this._element.getAttribute('cat-store'),
-						state: null,
-						data: null
-					}) :
-					null
-			},
-			currentStateMap = this._locator.resolve('stateProvider')
-				.getStateByUri(this._locator.resolve('requestRouter')._location);
+				{
+					name: this._element.getAttribute('cat-store'),
+					state: null,
+					data: null
+				} : null
+			};
 
-		if (data.store) {
-			data.store.data = this._clearProto(this._collectedStoreData) || null;
-			data.store.state = currentStateMap[data.store.name] || null;
+			const currentStateMap = this._locator.resolve('stateProvider')
+				.getStateByUri(this._locator.resolve('requestRouter')._location); // eslint-disable-line
+
+			if (data.store) {
+				data.store.data = this._collectedStoreData;
+				data.store.state = currentStateMap[data.store.name] || null;
+			}
+
+			return data;
 		}
 
-		return this._clearProto(data);
-	};
+		/**
+		 * Gets active components
+		 * @returns {Array}
+		 */
+		getActiveComponents() {
+			if (!this._locator) {
+				return [];
+			}
 
-	/**
-	 * Clears proto
-	 * @param {Object|null} result
-	 * @returns {Object|null}
-	 * @private
-	 */
-	CatberryDebugger.prototype._clearProto = function (result) {
-		if (result && typeof result === 'object') {
-			result.__proto__ = null;
-		}
+			const allComponents = this._locator.resolveAll('component')
+				.map(component => `cat-${component.name}`);
 
-		return result;
-	};
+			let activeComponents = [];
+			const self = this;
 
-	/**
-	 * Gets active components
-	 * @returns {Array}
-	 */
-	CatberryDebugger.prototype.getActiveComponents = function () {
-		if (!this._locator) {
-			return [];
-		}
-
-		var allComponents = this._locator.resolveAll('component')
-			.map(function (component) {
-				return 'cat-' + component.name;
+			allComponents.forEach(component => {
+				const elements = domDocument.getElementsByTagName(component);
+				const components = [];
+				for (let i = 0; i < elements.length; i++) {
+					components.push({
+						id: self.getElementInnerId(elements[i]),
+						element: elements[i],
+						store: elements[i].getAttribute('cat-store'),
+						name: component,
+						attributes: elements[i].attributes.length ? self.getAttributes(elements[i]) : null
+					});
+				}
+				activeComponents = activeComponents.concat(components);
 			});
 
-		var activeComponents = [],
-			self = this;
+			activeComponents = activeComponents.sort((first, second) => (first.name > second.name) ? 1 : -1);
 
-		allComponents.forEach(function (component) {
-			var elements = domDocument.getElementsByTagName(component),
-				components = [];
-			for (var i = 0; i < elements.length; i++) {
-				components.push({
-					id: self.getElementInnerId(elements[i]),
-					element: elements[i],
-					store: elements[i].getAttribute('cat-store'),
-					name: component,
-					attributes: elements[i].attributes.length ? self.getAttributes(elements[i]) : null
+			return activeComponents;
+		}
+
+		/**
+		 * Gets active components
+		 * @returns {Array}
+		 */
+		getActiveStores() {
+			if (!this._locator) {
+				return [];
+			}
+
+			let activeStores = [];
+			const activeStoresMap = {};
+			const activeComponents = this.getActiveComponents();
+
+			activeComponents.forEach(component => {
+				if (!component.store) {
+					return;
+				}
+
+				if (activeStoresMap.hasOwnProperty(component.store)) {
+					activeStoresMap[component.store].push(component);
+					return;
+				}
+
+				activeStoresMap[component.store] = [component];
+			});
+
+			Object.keys(activeStoresMap).forEach(storeName => {
+				activeStores.push({
+					name: storeName,
+					components: activeStoresMap[storeName]
 				});
-			}
-			activeComponents = activeComponents.concat(components);
-		});
-
-		activeComponents = activeComponents.sort(function (first, second) {
-			return (first.name > second.name) ? 1 : -1;
-		});
-
-		return activeComponents;
-	};
-
-	/**
-	 * Gets active components
-	 * @returns {Array}
-	 */
-	CatberryDebugger.prototype.getActiveStores = function () {
-		if (!this._locator) {
-			return [];
-		}
-
-		var activeStores = [],
-			activeStoresMap = {},
-			activeComponents = this.getActiveComponents();
-
-		activeComponents.forEach(function (component) {
-			if (!component.store) {
-				return;
-			}
-
-			if (activeStoresMap.hasOwnProperty(component.store)) {
-				activeStoresMap[component.store].push(component);
-				return;
-			}
-
-			activeStoresMap[component.store] = [component];
-		});
-
-		Object.keys(activeStoresMap).forEach(function (storeName) {
-			activeStores.push({
-				name: storeName,
-				components: activeStoresMap[storeName]
 			});
-		});
 
-		activeStores = activeStores.sort(function (first, second) {
-			return (first.name > second.name) ? 1 : -1;
-		});
+			activeStores = activeStores.sort((first, second) => (first.name > second.name) ? 1 : -1);
 
-		return activeStores;
-	};
-
-	/**
-	 * Gets current state.
-	 * @returns {Array}
-	 */
-	CatberryDebugger.prototype.getActiveState = function () {
-		if (!this._locator) {
-			return [];
+			return activeStores;
 		}
 
-		var currentState = [],
-			currentStateMap = this._locator.resolve('stateProvider')
-				.getStateByUri(this._locator.resolve('requestRouter')._location);
-
-		Object.keys(currentStateMap).forEach(function (storeName) {
-			currentState.push({
-				store: storeName,
-				data: currentStateMap[storeName]
-			});
-		});
-
-		currentState = currentState.sort(function (first, second) {
-			return (first.store > second.store) ? 1 : -1;
-		});
-
-		return currentState;
-	};
-
-	/**
-	 * Gets routes.
-	 * @returns {Array}
-	 */
-	CatberryDebugger.prototype.getActiveRoutes = function () {
-		if (!this._locator) {
-			return [];
-		}
-
-		var routes = this._locator.resolveAll('routeDefinition');
-
-		routes = routes.map(function (route) {
-			if (typeof route === 'string') {
-				return {
-					expression: route
-				};
+		/**
+		 * Gets current state.
+		 * @returns {Array}
+		 */
+		getActiveState() {
+			if (!this._locator) {
+				return [];
 			}
-			return route;
-		});
 
-		routes = routes.sort(function (first, second) {
-			return (first.expression > second.expression) ? 1 : -1;
-		});
+			let currentState = [];
 
-		return routes;
-	};
+			const currentStateMap = this._locator.resolve('stateProvider')
+				.getStateByUri(this._locator.resolve('requestRouter')._location); // eslint-disable-line
 
-	/**
-	 * Gets version
-	 * @returns {string}
-	 */
-	CatberryDebugger.prototype.getVersion = function () {
-		if (!this._catberry) {
-			return '';
+			Object.keys(currentStateMap).forEach(storeName => {
+				currentState.push({
+					store: storeName,
+					data: currentStateMap[storeName]
+				});
+			});
+
+			currentState = currentState.sort((first, second) => (first.store > second.store) ? 1 : -1);
+
+			return currentState;
 		}
-		return this._catberry.version || '';
-	};
 
-	var catberryDebugger = new CatberryDebugger();
+		/**
+		 * Gets routes.
+		 * @returns {Array}
+		 */
+		getActiveRoutes() {
+			if (!this._locator) {
+				return [];
+			}
+
+			let routes = this._locator.resolveAll('routeDefinition');
+
+			routes = routes.map(route => {
+				if (typeof route === 'string') {
+					return {
+						expression: route
+					};
+				}
+				return route;
+			});
+
+			routes = routes.sort((first, second) => (first.expression > second.expression) ? 1 : -1);
+
+			return routes;
+		}
+
+		/**
+		 * Gets version
+		 * @returns {string}
+		 */
+		getVersion() {
+			if (!this._catberry) {
+				return '';
+			}
+			return this._catberry.version || '';
+		}
+	}
+
+	const catberryDebugger = new CatberryDebugger();
 	catberryDebugger.init(selectedDomElement);
 
 	return catberryDebugger;
@@ -305,13 +288,16 @@ function getDebuggerInstance (selectedDomElement, domDocument) {
 
 chrome.devtools.panels.elements.createSidebarPane(
 	chrome.i18n.getMessage('sidebarTitle'),
-	function (sidebar) {
+	sidebar => {
+
+		/**
+		 * Update element properties
+		 */
 		function updateElementProperties() {
 			chrome.devtools.inspectedWindow.eval(
-				'window.catberryDevToolsSidebar=(' + getDebuggerInstance.toString() +
-				')($0, document);window.catberryDevToolsSidebar.getStoreData()',
-				function (data, error) {
-					setTimeout(function () {
+				`window.catberryDevToolsSidebar=(${getDebuggerInstance.toString()})($0, document);window.catberryDevToolsSidebar.getStoreData()`,
+				(data, error) => {
+					setTimeout(() => { // eslint-disable-line
 						sidebar.setExpression(
 							'window.catberryDevToolsSidebar.getCollectedData()',
 							chrome.i18n.getMessage('sidebarTitle')

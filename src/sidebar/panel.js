@@ -32,9 +32,8 @@ class CatberryPanel {
 	 */
 	addListeners() {
 		const panelWindow = this._panelWindow;
-		const self = this;
-
 		const table = panelWindow.document.getElementById('js-content');
+
 		table.addEventListener('click', event => {
 			if (event.target && event.target.nodeName === 'BUTTON') {
 				chrome.devtools.inspectedWindow.eval(
@@ -43,18 +42,16 @@ class CatberryPanel {
 			}
 		});
 
-		const refreshElement = panelWindow.document
-			.getElementById('js-refresh');
-		refreshElement.addEventListener('click', () => {
-			self.render();
-		});
+		const refreshElement = panelWindow.document.getElementById('js-refresh');
+		refreshElement.addEventListener('click', () => this.render());
 
 		Object.keys(SECTIONS).forEach(sectionName => {
 			const navElement = panelWindow.document
 				.getElementById(`js-nav-${SECTIONS[sectionName]}`);
+
 			navElement.addEventListener('click', () => {
-				self.render();
-				self.changeSection(SECTIONS[sectionName]);
+				this.render();
+				this.changeSection(SECTIONS[sectionName]);
 			});
 		});
 	}
@@ -75,13 +72,13 @@ class CatberryPanel {
 					attributes += `="${component.attributes[attributeName]}"<br/>`;
 				});
 			}
-			let content = '';
-			content += '<tr>';
-			content += `<td>${component.name}</td>`;
-			content += `<td>${attributes}</td>`;
-			content += `<td><button data-id="${component.id}" data-tag="${component.name}">Inspect</button></td>`;
-			content += '</tr>';
-			return content;
+
+			return `
+<tr>
+	<td>${component.name}</td>
+	<td>${attributes}</td>
+	<td align="center"><button data-id="${component.id}" data-tag="${component.name}">Inspect</button></td>
+</tr>`;
 		});
 	}
 
@@ -90,16 +87,15 @@ class CatberryPanel {
 	 */
 	renderStores() {
 		this._renderTableAndCounter(SECTIONS.stores, store => {
-			let content = '';
-			content += '<tr>';
-			content += `<td>${store.name}</td>`;
-			content += `<td>${store.components.length} component${store.components.length > 1 ? 's' : ''}</td>`;
-			content += `<td>${store.components
-				.map(component => 'component.name' + // eslint-disable-line
-				' <button data-id="' + component.id + '" data-tag="' + component.name + '">Inspect</button>')
-				.join('<br>')}</td>`;
-			content += '</tr>';
-			return content;
+			const componentsList = store.components
+					.map(component => `<div class="component-item"><span>${component.name}</span><button data-id="${component.id}" data-tag="${component.name}">Inspect</button></div>`)
+					.join('');
+			return `
+<tr>
+	<td>${store.name}</td>
+	<td>${store.components.length} component${store.components.length > 1 ? 's' : ''}</td>
+	<td>${componentsList}</td>
+</tr>`;
 		});
 	}
 
@@ -107,28 +103,22 @@ class CatberryPanel {
 	 * Renders state.
 	 */
 	renderState() {
-		this._renderTableAndCounter(SECTIONS.state, state => {
-			let content = '';
-			content += '<tr>';
-			content += `<td>${state.store}</td>`;
-			content += `<td>${JSON.stringify(state.data, null, '\t')}</td>`;
-			content += '</tr>';
-			return content;
-		});
+		this._renderTableAndCounter(SECTIONS.state, state => `
+<tr>
+	<td>${state.store}</td>
+	<td>${JSON.stringify(state.data, null, '\t')}</td>
+</tr>`);
 	}
 
 	/**
 	 * Renders routes.
 	 */
 	renderRoutes() {
-		this._renderTableAndCounter(SECTIONS.routes, route => {
-			let content = '';
-			content += '<tr>';
-			content += `<td>${route.expression}</td>`;
-			content += `<td>${route.map ? 'true' : ''}</td>`;
-			content += '</tr>';
-			return content;
-		});
+		this._renderTableAndCounter(SECTIONS.routes, route => `
+<tr>
+	<td>${route.expression}</td>
+	<td>${route.map instanceof Function ? route.map.toSource() : 'none'}</td>
+</tr>`);
 	}
 
 	/**
@@ -178,13 +168,9 @@ class CatberryPanel {
 				const counter = panelWindow.document
 					.getElementById(`js-count-${section}`);
 
-				let content = '';
-
-				list.forEach(item => {
+				table.innerHTML = list.reduce((content, item) => {
 					content += handler(item);
-				});
-
-				table.innerHTML = content;
+				}, '');
 				counter.innerHTML = list.length;
 			}
 		);
@@ -260,4 +246,3 @@ chrome.devtools.panels.create(
 			catberryPanel.changeSection(SECTIONS.components);
 		});
 	});
-

@@ -98,7 +98,7 @@
 }
 
 table {
-	width: 80%;
+	width: 95%;
 	margin: 0 auto;
 	background: #fff;
 	border: 1px solid #d0d0d0;
@@ -126,7 +126,9 @@ table td {
 	line-height: 1.5;
 	border-top: 1px solid #d4d4d5;
 	border-left: 1px solid #d4d4d5;
+	word-break: break-all;
 }
+
 table td:first-child,
 table th:first-child {
 	border-left: none;
@@ -134,4 +136,9 @@ table th:first-child {
 }
 table tr:first-child td {
 	border-top: none;
+}
+.component-item {
+	margin-bottom: .7em;
+	display: flex;
+	justify-content: space-between;
 }

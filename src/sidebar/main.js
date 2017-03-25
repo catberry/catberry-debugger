@@ -42,7 +42,6 @@ function getDebuggerInstance(selectedDomElement, domDocument) {
 			 * @type {Object|null}
 			 * @private
 			 */
-
 			this._locator = ('catberry' in window) ? window.catberry.locator : null;
 		}
 
@@ -103,7 +102,7 @@ function getDebuggerInstance(selectedDomElement, domDocument) {
 		 * @returns {Object}
 		 */
 		getAttributes(element) {
-			const attributes = {};
+			const attributes = Object.create(null);
 			let attribute;
 			for (let i = 0; i < element.attributes.length; i++) {
 				attribute = element.attributes[i];
@@ -125,8 +124,7 @@ function getDebuggerInstance(selectedDomElement, domDocument) {
 			const data = {
 				component: this._element.tagName.toLowerCase(),
 				attributes: this._element.attributes.length ? this.getAttributes(this._element) : null,
-				store: this._element.getAttribute('cat-store') ?
-				{
+				store: this._element.getAttribute('cat-store') ? {
 					name: this._element.getAttribute('cat-store'),
 					state: null,
 					data: null
@@ -153,30 +151,31 @@ function getDebuggerInstance(selectedDomElement, domDocument) {
 				return [];
 			}
 
-			const allComponents = this._locator.resolveAll('component')
-				.map(component => `cat-${component.name}`);
+			let allComponents;
+			try {
+				allComponents = this._locator.resolveAll('component')
+					.map(component => `cat-${component.name}`);
+			} catch (e) {
+				allComponents = [];
+			}
 
-			let activeComponents = [];
-			const self = this;
+			const activeComponents = [];
 
 			allComponents.forEach(component => {
 				const elements = domDocument.getElementsByTagName(component);
-				const components = [];
+
 				for (let i = 0; i < elements.length; i++) {
-					components.push({
-						id: self.getElementInnerId(elements[i]),
+					activeComponents.push({
+						id: this.getElementInnerId(elements[i]),
 						element: elements[i],
 						store: elements[i].getAttribute('cat-store'),
 						name: component,
-						attributes: elements[i].attributes.length ? self.getAttributes(elements[i]) : null
+						attributes: elements[i].attributes.length ? this.getAttributes(elements[i]) : null
 					});
 				}
-				activeComponents = activeComponents.concat(components);
 			});
 
-			activeComponents = activeComponents.sort((first, second) => (first.name > second.name) ? 1 : -1);
-
-			return activeComponents;
+			return activeComponents.sort((first, second) => (first.name > second.name) ? 1 : -1);
 		}
 
 		/**
@@ -188,8 +187,8 @@ function getDebuggerInstance(selectedDomElement, domDocument) {
 				return [];
 			}
 
-			let activeStores = [];
-			const activeStoresMap = {};
+			const activeStores = [];
+			const activeStoresMap = Object.create(null);
 			const activeComponents = this.getActiveComponents();
 
 			activeComponents.forEach(component => {
@@ -197,7 +196,7 @@ function getDebuggerInstance(selectedDomElement, domDocument) {
 					return;
 				}
 
-				if (activeStoresMap.hasOwnProperty(component.store)) {
+				if (component.store in activeStoresMap) {
 					activeStoresMap[component.store].push(component);
 					return;
 				}
@@ -212,9 +211,7 @@ function getDebuggerInstance(selectedDomElement, domDocument) {
 				});
 			});
 
-			activeStores = activeStores.sort((first, second) => (first.name > second.name) ? 1 : -1);
-
-			return activeStores;
+			return activeStores.sort((first, second) => (first.name > second.name) ? 1 : -1);
 		}
 
 		/**
@@ -273,10 +270,7 @@ function getDebuggerInstance(selectedDomElement, domDocument) {
 		 * @returns {string}
 		 */
 		getVersion() {
-			if (!this._catberry) {
-				return '';
-			}
-			return this._catberry.version || '';
+			return !this._catberry ? '' : (this._catberry.version || '');
 		}
 	}
 

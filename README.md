@@ -1,16 +1,16 @@
-#Catberry Debugger
+# Catberry Debugger
 
 ![Catberry](https://raw.githubusercontent.com/catberry/catberry/master/docs/images/logo.png)
 
-##What is it?
+## What is it?
 Catberry Debugger extends Chrome Developer Tools,
  * adding a sidebar that displays information about [Catberry](https://github.com/catberry/catberry/)-component associated with the selected DOM element;
  * adding a panel that displays components, routes, stores data, state and statistics.
 
-##Download
+## Download
 Packaged version `./bin/catberry-debugger.crx`
 
-##Example
+## Example
 
 Sidebar pane
 
@@ -32,7 +32,7 @@ Panel with routes
 
 ![Catberry Debugger Panel with routes](https://raw.githubusercontent.com/catberry/catberry-debugger/master/example/screenshots/panel-routes.png)
 
-##Pack from source code
+## Pack from source code
 ```
 make package
 ```
